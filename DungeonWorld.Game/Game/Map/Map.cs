@@ -1,3 +1,4 @@
+using DungeonWorld.Game.Map.Extensions;
 using DungeonWorld.Game.Shared;
 
 namespace DungeonWorld.Game.Map;
@@ -6,11 +7,13 @@ public class LevelMapValue
 {
     public char Symbol { get; set; }
     public Point Position { get; set; }
+    public bool End { get; set; } = false;
 
-    public LevelMapValue(char symbol, Point point)
+    public LevelMapValue(char symbol, Point point, bool isEnd = false)
     {
         Symbol = symbol;
         Position = point;
+        End = isEnd;
     }
 }
 
@@ -23,6 +26,7 @@ public class Field
     public Field(Player player)
     {
         this.player = player;
+        this.GenerateLevel();
     }
 
     public void Clean()
@@ -34,6 +38,8 @@ public class Field
     {
         this.player = player;
     }
+
+    public void LoadMap(List<LevelMapValue> values) => decorationMap = values;
 
     public bool InStuck(Point playerAbsolute) =>
         decorationMap.Select(x => x.Position).Contains(playerAbsolute);
