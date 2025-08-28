@@ -25,7 +25,7 @@ public class GameCycle
 
         Field.Clean();
         Field.Draw();
-        
+
         while (true)
         {
             cancellationToken.ThrowIfCancellationRequested();
@@ -50,6 +50,9 @@ public class GameCycle
 
             if (currentDirection != Direction.None)
             {
+                if (Field.InStuck(Player.TryMove(currentDirection)))
+                    continue;
+
                 Player.Move(currentDirection);
                 Field.Clean();
                 Field.Draw();

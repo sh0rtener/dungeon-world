@@ -10,25 +10,28 @@ public class Player
 
     public void Move(Direction direction)
     {
+        Position = TryMove(direction);
+        // ... Point -> ..?
+    }
+
+    public Point TryMove(Direction direction)
+    {
         switch (direction)
         {
             case Direction.Up:
-                Position = new(Position.X, Position.Y - Speed);
-                break;
+                return new(Position.X, Position.Y - Speed);
 
             case Direction.Down:
-                Position = new(Position.X, Position.Y + Speed);
-                break;
+                return new(Position.X, Position.Y + Speed);
 
             case Direction.Left:
-                Position = new(Position.X - Speed, Position.Y);
-                break;
-
+                return new(Position.X - Speed, Position.Y);
             case Direction.Right:
-                Position = new(Position.X + Speed, Position.Y);
-                break;
-
+                return new(Position.X + Speed, Position.Y);
+            case Direction.None:
+                return new(Position.X, Position.Y);
+            default:
+                return new(Position.X, Position.Y);
         }
-        // ... Point -> ..?
-    }   
+    }
 }

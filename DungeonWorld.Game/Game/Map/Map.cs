@@ -2,12 +2,21 @@ using DungeonWorld.Game.Shared;
 
 namespace DungeonWorld.Game.Map;
 
+public class LevelMapValue
+{
+    public char Symbol { get; set; }
+    public Point Position { get; set; }
+
+    public LevelMapValue(char symbol, Point point)
+    {
+        Symbol = symbol;
+        Position = point;
+    }
+}
+
 public class Field
 {
-    private List<(char s, Point p)> decoration =
-    [
-        ('*', new(0, 0)),
-    ];
+    private List<LevelMapValue> decorationMap = [new('*', new(2, 2))];
 
     private Player player;
 
@@ -26,6 +35,9 @@ public class Field
         this.player = player;
     }
 
+    public bool InStuck(Point playerAbsolute) =>
+        decorationMap.Select(x => x.Position).Contains(playerAbsolute);
+
     public void Draw()
     {
         var height = Console.WindowHeight;
@@ -38,13 +50,13 @@ public class Field
         var leftTop = playerAbsolute - playerOnScreen;
         var rightBottom = playerAbsolute + playerOnScreen;
 
-        foreach ( var (s, p) in decoration )
+        foreach (var decoration in decorationMap)
         {
-            var point = GetPointOnScreen(p);
+            var point = GetPointOnScreen(decoration.Position);
             if (point.HasValue)
             {
                 Console.SetCursorPosition(point.Value.X, point.Value.Y);
-                Console.Write(s);
+                Console.Write(decoration.Symbol);
             }
         }
 
@@ -66,6 +78,4 @@ public class Field
             return absolute - leftTop;
         }
     }
-
-    
 }
