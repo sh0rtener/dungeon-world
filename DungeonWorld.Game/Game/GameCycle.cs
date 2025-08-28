@@ -20,12 +20,15 @@ public class GameCycle
 
     public Task RunAsync(CancellationToken cancellationToken)
     {
+        Console.CursorVisible = false;
         StartListenInput(cancellationToken);
 
+        Field.Clean();
+        Field.Draw();
+        
         while (true)
         {
             cancellationToken.ThrowIfCancellationRequested();
-
 
             if (inputQueue.Any())
             {
@@ -48,44 +51,39 @@ public class GameCycle
             if (currentDirection != Direction.None)
             {
                 Player.Move(currentDirection);
+                Field.Clean();
+                Field.Draw();
             }
-
-            Field.Clean();
-            Field.Draw();
         }
     }
 
     public void StartListenInput(CancellationToken cancellationToken)
     {
-        inputListenning = Task.Run(() =>
-        {
-            try
+        inputListenning = Task.Run(
+            () =>
             {
-
-                while (true)
+                try
                 {
-                    cancellationToken.ThrowIfCancellationRequested();
-
-                    var key = Console.ReadKey();
-                    if (inputQueue.Count < 10)
+                    while (true)
                     {
-                        inputQueue.Enqueue(key);
+                        cancellationToken.ThrowIfCancellationRequested();
 
+                        var key = Console.ReadKey();
+                        if (inputQueue.Count < 10)
+                        {
+                            inputQueue.Enqueue(key);
+                        }
+
+                        Task.Delay(1, cancellationToken);
                     }
-
-                    Task.Delay(1, cancellationToken);
                 }
-
-            }
-            catch (OperationCanceledException)
-            {
-
-            }
-            catch (Exception)
-            {
-
-                throw;
-            }
-        }, cancellationToken);
+                catch (OperationCanceledException) { }
+                catch (Exception)
+                {
+                    throw;
+                }
+            },
+            cancellationToken
+        );
     }
 }
