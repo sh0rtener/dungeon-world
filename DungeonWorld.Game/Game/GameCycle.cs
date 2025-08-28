@@ -10,6 +10,7 @@ public class GameCycle
 
     private Task inputListenning;
     private Direction currentDirection = Direction.None;
+    private Queue<ConsoleKeyInfo> inputQueue = new Queue<ConsoleKeyInfo>();
 
     public GameCycle(Player player, Field field)
     {
@@ -25,15 +26,31 @@ public class GameCycle
         {
             cancellationToken.ThrowIfCancellationRequested();
 
-            Field.Clean();
+
+            if (inputQueue.Any())
+            {
+                var key = inputQueue.Dequeue();
+
+                currentDirection = key.Key switch
+                {
+                    ConsoleKey.UpArrow => Direction.Up,
+                    ConsoleKey.DownArrow => Direction.Down,
+                    ConsoleKey.LeftArrow => Direction.Left,
+                    ConsoleKey.RightArrow => Direction.Right,
+                    _ => Direction.None,
+                };
+            }
+            else
+            {
+                currentDirection = Direction.None;
+            }
 
             if (currentDirection != Direction.None)
             {
                 Player.Move(currentDirection);
             }
 
-            Field.AddPlayer(Player);
-
+            Field.Clean();
             Field.Draw();
         }
     }
@@ -45,21 +62,16 @@ public class GameCycle
             try
             {
 
-                while (true) 
-                { 
+                while (true)
+                {
                     cancellationToken.ThrowIfCancellationRequested();
-                    currentDirection = Direction.None;
 
                     var key = Console.ReadKey();
-
-                    currentDirection = key.Key switch
+                    if (inputQueue.Count < 10)
                     {
-                        ConsoleKey.UpArrow => Direction.Up,
-                        ConsoleKey.DownArrow => Direction.Down,
-                        ConsoleKey.LeftArrow => Direction.Left,
-                        ConsoleKey.RightArrow => Direction.Right,
-                        _ => Direction.None,
-                    };
+                        inputQueue.Enqueue(key);
+
+                    }
 
                     Task.Delay(1, cancellationToken);
                 }
