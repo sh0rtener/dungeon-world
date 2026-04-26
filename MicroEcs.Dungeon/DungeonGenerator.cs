@@ -103,6 +103,7 @@ public sealed class DungeonGenerator
         SpawnTiles(world);
         SpawnPlayer(world);
         SpawnGoal(world);
+        SpawnEnemies(world);
     }
 
     // ------------------------------------------------------------------
@@ -446,12 +447,31 @@ public sealed class DungeonGenerator
 
     private void SpawnPlayer(World world)
     {
-        world.Create(
+        var player = world.Create(
             new Position(PlayerSpawn.X, PlayerSpawn.Y),
             new Velocity(0, 0),
             new Renderable('@', ConsoleColor.White),
             new Layer(10),
             new PlayerTag());
+        world.Add(player, new Health(10, 10));
+        world.Add(player, new ShootIntent(0, 0));
+    }
+
+    private void SpawnEnemies(World world)
+    {
+        // Skip room 0 (player spawn) and the last room (goal).
+        for (int i = 1; i < _rooms.Count - 1; i++)
+        {
+            var room = _rooms[i];
+            var enemy = world.Create(
+                new Position(room.CenterX, room.CenterY),
+                new Renderable('E', ConsoleColor.Red),
+                new Layer(10),
+                new Health(3, 3),
+                new ShootCooldown(2.0f, 2.0f));
+            world.Add(enemy, default(EnemyTag));
+            world.Add(enemy, default(Blocker));
+        }
     }
 
     private void SpawnGoal(World world)

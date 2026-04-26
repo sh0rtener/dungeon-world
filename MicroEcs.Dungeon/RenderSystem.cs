@@ -15,6 +15,7 @@ namespace MicroEcs.Dungeon;
 public sealed class RenderSystem : SystemBase
 {
     private readonly QueryDescription _playerQuery = new QueryDescription().WithAll<PlayerTag, Position>();
+    private readonly QueryDescription _playerHealthQ = new QueryDescription().WithAll<PlayerTag, Health>();
     private readonly QueryDescription _withLayer = new QueryDescription().WithAll<Position, Renderable, Layer>();
     private readonly QueryDescription _goalQuery = new QueryDescription().WithAll<Goal, Position>();
 
@@ -101,11 +102,14 @@ public sealed class RenderSystem : SystemBase
 
         // ---- 5. HUD line ----
         int goalDistance = ComputeGoalDistance(ctx.World, cam);
+        Health? playerHp = null;
+        ctx.World.Query(_playerHealthQ).ForEach<Health>((ref Health h) => playerHp = h);
+        string hpStr = playerHp.HasValue ? $"HP={playerHp.Value.Current}/{playerHp.Value.Max}" : "HP=?";
+
         Console.SetCursorPosition(0, playArea);
         Console.ForegroundColor = ConsoleColor.Cyan;
         string hud =
-            $" pos=({cam.X,3},{cam.Y,3})  to-goal={goalDistance,3}  entities={ctx.World.EntityCount,5}  arch={ctx.World.Archetypes.Count,2}  [arrows/wasd/hjkl] move  [Q/Esc] quit ";
-        // Pad/truncate to terminal width so we overwrite any leftover characters.
+            $" {hpStr}  pos=({cam.X,3},{cam.Y,3})  to-goal={goalDistance,3}  entities={ctx.World.EntityCount,5}  [wasd/hjkl] move  [Space] shoot  [Q] quit ";
         if (hud.Length > width) hud = hud[..width];
         else hud = hud.PadRight(width);
         Console.Write(hud);

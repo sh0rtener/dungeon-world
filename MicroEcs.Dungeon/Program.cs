@@ -26,10 +26,15 @@ generator.Generate(world);
 var inputQueue = new Queue<ConsoleKey>();
 var inputSystem = new InputSystem(inputQueue);
 var goalSystem = new GoalSystem();
+var healthSystem = new HealthSystem();
 
 var systems = new SystemGroup("Main");
 systems.Add(inputSystem);
+systems.Add(new PlayerShootSystem());
+systems.Add(new EnemyShootSystem());
+systems.Add(new BulletSystem());
 systems.Add(new MovementSystem());
+systems.Add(healthSystem);
 systems.Add(goalSystem);
 systems.Add(new RenderSystem());
 
@@ -64,7 +69,7 @@ const float dt = frameMs / 1000f;
 
 try
 {
-    while (!cts.IsCancellationRequested && !goalSystem.Reached && !inputSystem.QuitRequested)
+    while (!cts.IsCancellationRequested && !goalSystem.Reached && !inputSystem.QuitRequested && !healthSystem.PlayerDied)
     {
         systems.Update(world, dt);
         Thread.Sleep(frameMs);
@@ -83,6 +88,8 @@ finally
 
     if (goalSystem.Reached)
         Console.WriteLine("You reached the exit. Well done.");
+    else if (healthSystem.PlayerDied)
+        Console.WriteLine("You died.");
     else if (inputSystem.QuitRequested)
         Console.WriteLine("Bye.");
     else

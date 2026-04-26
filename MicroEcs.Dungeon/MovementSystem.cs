@@ -15,7 +15,8 @@ namespace MicroEcs.Dungeon;
 public sealed class MovementSystem : SystemBase
 {
     private readonly QueryDescription _movers = new QueryDescription()
-        .WithAll<Position, Velocity>();
+        .WithAll<Position, Velocity>()
+        .WithNone<BulletTag>();
 
     private readonly QueryDescription _blockers = new QueryDescription()
         .WithAll<Position, Blocker>();

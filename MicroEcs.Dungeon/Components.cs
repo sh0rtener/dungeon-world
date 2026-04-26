@@ -38,3 +38,34 @@ public struct Goal : ITag { }
 
 /// <summary>Floor / open ground — purely cosmetic, drawn under everything.</summary>
 public struct Floor : ITag { }
+
+// ----- Combat components -----
+
+/// <summary>Hit points for player and enemies.</summary>
+public record struct Health(int Current, int Max);
+
+/// <summary>Seconds until this entity can fire again.</summary>
+public record struct ShootCooldown(float TimeRemaining, float MaxCooldown);
+
+/// <summary>Damage dealt on contact. Present on all bullet entities.</summary>
+public record struct Bullet(int Damage);
+
+/// <summary>Seconds remaining before this entity auto-destructs.</summary>
+public record struct Lifetime(float TimeRemaining);
+
+/// <summary>Player's pending shoot direction for this frame (0,0 = no shot).</summary>
+public record struct ShootIntent(int Dx, int Dy);
+
+// ----- Combat tags -----
+
+/// <summary>Marks enemy entities.</summary>
+public struct EnemyTag : ITag { }
+
+/// <summary>On every bullet. Lets MovementSystem exclude bullets via WithNone.</summary>
+public struct BulletTag : ITag { }
+
+/// <summary>Player-owned bullets — collide with enemies only.</summary>
+public struct PlayerBulletTag : ITag { }
+
+/// <summary>Enemy-owned bullets — collide with player only.</summary>
+public struct EnemyBulletTag : ITag { }
